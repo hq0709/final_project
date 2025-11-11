@@ -373,11 +373,11 @@ cd /Users/jianghanqi/Desktop/final_project
 #### 2. Start MySQL Database
 
 ```bash
-docker run --name gametracker-mysql \
+docker run --name gamehub-mysql \
   -e MYSQL_ROOT_PASSWORD=rootpassword \
-  -e MYSQL_DATABASE=gametracker \
-  -e MYSQL_USER=gametracker \
-  -e MYSQL_PASSWORD=gametracker123 \
+  -e MYSQL_DATABASE=gamehub \
+  -e MYSQL_USER=gamehub \
+  -e MYSQL_PASSWORD=gamehub123 \
   -p 3306:3306 \
   -d mysql:8.0
 ```
@@ -388,7 +388,7 @@ Wait about 10 seconds for MySQL to initialize.
 
 ```bash
 # Initialize complete database (schema + sample data + social features)
-docker exec -i gametracker-mysql mysql -ugametracker -pgametracker123 gametracker < database/init_database.sql
+docker exec -i gamehub-mysql mysql -ugamehub -pgamehub123 gamehub < database/init_database.sql
 ```
 
 This single script creates:
@@ -409,9 +409,9 @@ The backend API will be available at: `http://localhost:8080/api`
 
 You should see output like:
 ```
-🎮 GameTracker Pro Backend Started!
+🎮 GameHub Backend Started!
 📍 API Base URL: http://localhost:8080/api
-📊 Database: MySQL (gametracker)
+📊 Database: MySQL (gamehub)
 🔒 Security: JWT Authentication
 ```
 
@@ -844,7 +844,7 @@ final_project/
 ├── backend/                           # Spring Boot Backend
 │   ├── src/
 │   │   └── main/
-│   │       ├── java/com/gametracker/
+│   │       ├── java/com/gamehub/
 │   │       │   ├── controller/       # REST API Controllers
 │   │       │   │   ├── AuthController.java
 │   │       │   │   ├── GameController.java
@@ -877,7 +877,7 @@ final_project/
 │   │       │   ├── util/             # Utility Classes
 │   │       │   │   └── JwtUtil.java  # JWT token generation/validation
 │   │       │   │
-│   │       │   └── GameTrackerApplication.java  # Main application class
+│   │       │   └── GameHubApplication.java  # Main application class
 │   │       │
 │   │       └── resources/
 │   │           └── application.properties  # Configuration
@@ -923,7 +923,7 @@ final_project/
 
 #### Backend
 
-- **`GameTrackerApplication.java`**: Main Spring Boot application entry point
+- **`GameHubApplication.java`**: Main Spring Boot application entry point
 - **`AuthController.java`**: Handles user registration and login
 - **`ReviewController.java`**: Manages review CRUD operations, likes, and replies
 - **`UserLibraryController.java`**: Manages user's game collection and wishlist
@@ -1236,25 +1236,25 @@ curl http://localhost:8080/api/library \
 
 **Check User Count**:
 ```bash
-docker exec gametracker-mysql mysql -ugametracker -pgametracker123 \
-  -e "SELECT COUNT(*) as user_count FROM USER;" gametracker
+docker exec gamehub-mysql mysql -ugamehub -pgamehub123 \
+  -e "SELECT COUNT(*) as user_count FROM USER;" gamehub
 ```
 
 **Check Game Count**:
 ```bash
-docker exec gametracker-mysql mysql -ugametracker -pgametracker123 \
-  -e "SELECT COUNT(*) as game_count FROM GAME;" gametracker
+docker exec gamehub-mysql mysql -ugamehub -pgamehub123 \
+  -e "SELECT COUNT(*) as game_count FROM GAME;" gamehub
 ```
 
 **Check Recent Activities**:
 ```bash
-docker exec gametracker-mysql mysql -ugametracker -pgametracker123 \
-  -e "SELECT activity_type, COUNT(*) as count FROM ACTIVITY GROUP BY activity_type;" gametracker
+docker exec gamehub-mysql mysql -ugamehub -pgamehub123 \
+  -e "SELECT activity_type, COUNT(*) as count FROM ACTIVITY GROUP BY activity_type;" gamehub
 ```
 
 **Check Review Statistics**:
 ```bash
-docker exec gametracker-mysql mysql -ugametracker -pgametracker123 \
-  -e "SELECT AVG(rating) as avg_rating, COUNT(*) as review_count FROM REVIEW;" gametracker
+docker exec gamehub-mysql mysql -ugamehub -pgamehub123 \
+  -e "SELECT AVG(rating) as avg_rating, COUNT(*) as review_count FROM REVIEW;" gamehub
 ```
 
