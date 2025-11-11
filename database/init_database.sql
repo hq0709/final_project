@@ -5,15 +5,15 @@
 -- 1. Core tables (USER, GAME, REVIEW, etc.)
 -- 2. Social features (REVIEW_LIKE, REVIEW_REPLY, ACTIVITY)
 -- 3. Sample game data (30 popular games)
--- 
+--
 -- Usage:
---   docker exec -i gametracker-mysql mysql -ugametracker -pgametracker123 gametracker < database/init_database.sql
+--   docker exec -i gamehub-mysql mysql -ugamehub -pgamehub123 gamehub < database/init_database.sql
 -- ============================================================================
 
 -- Drop and recreate database
-DROP DATABASE IF EXISTS gametracker;
-CREATE DATABASE gametracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE gametracker;
+DROP DATABASE IF EXISTS gamehub;
+CREATE DATABASE gamehub CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE gamehub;
 
 -- ============================================================================
 -- CORE TABLES
@@ -29,13 +29,16 @@ CREATE TABLE USER (
     avatar_url VARCHAR(500),
     bio TEXT,
     country VARCHAR(50),
+    level INT DEFAULT 1,
+    reviews_count INT DEFAULT 0,
     total_achievements INT DEFAULT 0,
     total_playtime_hours DECIMAL(10,2) DEFAULT 0.00,
     account_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login TIMESTAMP NULL,
     INDEX idx_email (email),
     INDEX idx_username (username),
-    INDEX idx_total_achievements (total_achievements DESC)
+    INDEX idx_total_achievements (total_achievements DESC),
+    INDEX idx_level (level DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Table: PLATFORM
@@ -61,6 +64,7 @@ CREATE TABLE GAME (
     release_date DATE,
     developer VARCHAR(100),
     publisher VARCHAR(100),
+    cover_image_url VARCHAR(500),
     total_achievements INT DEFAULT 0,
     avg_completion_time_hours DECIMAL(10,2),
     metacritic_score INT,
@@ -96,6 +100,7 @@ CREATE TABLE USER_GAME (
     status ENUM('owned', 'wishlist') DEFAULT 'wishlist',
     playtime_hours DECIMAL(10,2) DEFAULT 0.00,
     completion_percentage DECIMAL(5,2) DEFAULT 0.00,
+    ownership_date DATE,
     added_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_played TIMESTAMP NULL,
     FOREIGN KEY (user_id) REFERENCES USER(user_id) ON DELETE CASCADE,
@@ -115,6 +120,7 @@ CREATE TABLE REVIEW (
     review_text TEXT,
     recommended BOOLEAN DEFAULT TRUE,
     playtime_at_review DECIMAL(10,2),
+    helpful_count INT DEFAULT 0,
     likes_count INT DEFAULT 0,
     replies_count INT DEFAULT 0,
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -349,6 +355,19 @@ INSERT INTO GAME_GENRE (game_id, genre_id) VALUES
 (30, 8), (30, 3), (30, 15);
 
 -- ============================================================================
+-- SAMPLE DATA - USERS
+-- ============================================================================
+-- Password for all demo users: demo123
+-- Password hash generated using BCrypt with strength 12
+
+INSERT INTO USER (username, email, password_hash, display_name, bio, country, level, reviews_count, total_achievements, total_playtime_hours, account_created, last_login) VALUES
+('demo', 'demo@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Demo User', 'Welcome to GameHub! This is a demo account.', 'United States', 1, 0, 0, 0, NOW(), NOW()),
+('alice', 'alice@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Alice Johnson', 'RPG enthusiast and achievement hunter', 'Canada', 15, 12, 150, 320, NOW(), NOW()),
+('bob', 'bob@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Bob Smith', 'Indie game lover', 'United Kingdom', 8, 5, 85, 180, NOW(), NOW()),
+('charlie', 'charlie@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Charlie Brown', 'Speedrunner and platformer fan', 'Australia', 20, 18, 200, 450, NOW(), NOW()),
+('diana', 'diana@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Diana Prince', 'Open world explorer', 'Germany', 12, 8, 120, 280, NOW(), NOW());
+
+-- ============================================================================
 -- DATABASE INITIALIZATION COMPLETE
 -- ============================================================================
 --
@@ -356,8 +375,16 @@ INSERT INTO GAME_GENRE (game_id, genre_id) VALUES
 -- - 30 games loaded
 -- - 8 platforms configured
 -- - 16 genres configured
+-- - 5 demo users created (password: demo123)
 -- - All relationships established
 -- - Social features tables created
+--
+-- Demo Accounts:
+-- - demo@gamehub.com / demo123
+-- - alice@gamehub.com / demo123
+-- - bob@gamehub.com / demo123
+-- - charlie@gamehub.com / demo123
+-- - diana@gamehub.com / demo123
 --
 -- Next steps:
 -- 1. Start the backend: cd backend && mvn spring-boot:run

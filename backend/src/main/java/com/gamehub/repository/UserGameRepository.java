@@ -72,9 +72,7 @@ public class UserGameRepository {
                 g.total_achievements,
                 g.metacritic_score,
                 p.name as platform_name,
-                (SELECT COUNT(*) FROM USER_ACHIEVEMENT ua
-                 JOIN ACHIEVEMENT a ON ua.achievement_id = a.achievement_id
-                 WHERE ua.user_id = ug.user_id AND a.game_id = ug.game_id) as unlocked_achievements
+                0 as unlocked_achievements
             FROM USER_GAME ug
             JOIN GAME g ON ug.game_id = g.game_id
             LEFT JOIN PLATFORM p ON ug.platform_id = p.platform_id
