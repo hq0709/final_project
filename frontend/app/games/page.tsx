@@ -54,8 +54,8 @@ export default function GamesPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">🎮 GameTracker Pro</h1>
-          <p className="text-gray-300">Track your gaming achievements and progress</p>
+          <h1 className="text-4xl font-bold text-white mb-2">🎮 Browse Games</h1>
+          <p className="text-gray-300">Discover and explore amazing games</p>
         </div>
 
         {/* Search Bar */}
@@ -131,12 +131,7 @@ export default function GamesPage() {
 
                     {/* Stats */}
                     <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                      <span>🏆 {game.totalAchievements} achievements</span>
-                      <span>⭐ {game.metacriticScore}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs text-gray-400">
-                      <span>⏱️ {game.avgCompletionTimeHours}h</span>
+                      <span>⭐ {game.metacriticScore || 'N/A'}</span>
                       <span className="text-gray-500">{game.releaseDate}</span>
                     </div>
 

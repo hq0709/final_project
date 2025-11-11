@@ -230,15 +230,15 @@ export default function LibraryPage() {
                         <span className="text-white font-medium">{game.playtimeHours}h</span>
                       </div>
                       <div className="flex justify-between text-gray-400">
-                        <span>🏆 Achievements</span>
-                        <span className="text-white font-medium">
-                          {game.unlockedAchievements}/{game.totalAchievements}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-gray-400">
                         <span>🎮 Platform</span>
                         <span className="text-white font-medium">{game.platformName}</span>
                       </div>
+                      {game.metacriticScore && (
+                        <div className="flex justify-between text-gray-400">
+                          <span>⭐ Score</span>
+                          <span className="text-white font-medium">{game.metacriticScore}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Link>
