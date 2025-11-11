@@ -72,7 +72,8 @@ public class UserGameRepository {
                 g.total_achievements,
                 g.metacritic_score,
                 p.name as platform_name,
-                0 as unlocked_achievements
+                0 as unlocked_achievements,
+                (SELECT AVG(r.rating) FROM REVIEW r WHERE r.game_id = g.game_id) as avg_rating
             FROM USER_GAME ug
             JOIN GAME g ON ug.game_id = g.game_id
             LEFT JOIN PLATFORM p ON ug.platform_id = p.platform_id
@@ -96,14 +97,22 @@ public class UserGameRepository {
             result.put("totalAchievements", rs.getInt("total_achievements"));
             result.put("unlockedAchievements", rs.getInt("unlocked_achievements"));
             result.put("metacriticScore", rs.getInt("metacritic_score"));
-            
+
+            // Add average rating from reviews
+            Double avgRating = rs.getDouble("avg_rating");
+            if (!rs.wasNull()) {
+                result.put("avgRating", avgRating);
+            } else {
+                result.put("avgRating", null);
+            }
+
             if (rs.getDate("ownership_date") != null) {
                 result.put("ownershipDate", rs.getDate("ownership_date").toLocalDate().toString());
             }
             if (rs.getTimestamp("last_played") != null) {
                 result.put("lastPlayed", rs.getTimestamp("last_played").toLocalDateTime().toString());
             }
-            
+
             return result;
         }, userId);
     }

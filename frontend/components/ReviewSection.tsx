@@ -241,8 +241,8 @@ export default function ReviewSection({ gameId }: ReviewSectionProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className={i < review.rating ? 'text-yellow-400' : 'text-gray-600'}>
+                  {[...Array(review.rating)].map((_, i) => (
+                    <span key={i} className="text-yellow-400">
                       ⭐
                     </span>
                   ))}

@@ -133,5 +133,17 @@ public class GameRepository {
                     "LIMIT ?";
         return jdbcTemplate.queryForList(sql, userId, userId, limit);
     }
+
+    /**
+     * Get platforms for a specific game
+     */
+    public List<Map<String, Object>> getGamePlatforms(Integer gameId) {
+        String sql = "SELECT p.platform_id, p.name, p.description " +
+                    "FROM PLATFORM p " +
+                    "JOIN GAME_PLATFORM gp ON p.platform_id = gp.platform_id " +
+                    "WHERE gp.game_id = ? " +
+                    "ORDER BY p.name";
+        return jdbcTemplate.queryForList(sql, gameId);
+    }
 }
 

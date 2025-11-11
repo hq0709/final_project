@@ -79,5 +79,15 @@ public class GameController {
         List<Map<String, Object>> games = gameRepository.getRecommendedGames(userId, limit);
         return ResponseEntity.ok(games);
     }
+
+    /**
+     * Get platforms for a specific game
+     * GET /api/games/:id/platforms
+     */
+    @GetMapping("/{id}/platforms")
+    public ResponseEntity<List<Map<String, Object>>> getGamePlatforms(@PathVariable Integer id) {
+        List<Map<String, Object>> platforms = gameRepository.getGamePlatforms(id);
+        return ResponseEntity.ok(platforms);
+    }
 }
 

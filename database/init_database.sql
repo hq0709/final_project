@@ -116,7 +116,7 @@ CREATE TABLE REVIEW (
     review_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     game_id INT NOT NULL,
-    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 10),
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
     review_text TEXT,
     recommended BOOLEAN DEFAULT TRUE,
     playtime_at_review DECIMAL(10,2),

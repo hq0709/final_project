@@ -193,6 +193,10 @@ export const gamesAPI = {
   getAchievements: async (gameId: number): Promise<Achievement[]> => {
     return apiRequest<Achievement[]>(`/games/${gameId}/achievements`);
   },
+
+  getPlatforms: async (gameId: number): Promise<any[]> => {
+    return apiRequest<any[]>(`/games/${gameId}/platforms`);
+  },
 };
 
 // User API (placeholder for future implementation)

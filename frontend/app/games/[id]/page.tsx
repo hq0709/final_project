@@ -13,6 +13,8 @@ export default function GameDetailPage() {
   const gameId = parseInt(params.id as string);
 
   const [game, setGame] = useState<Game | null>(null);
+  const [platforms, setPlatforms] = useState<any[]>([]);
+  const [selectedPlatform, setSelectedPlatform] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -20,11 +22,13 @@ export default function GameDetailPage() {
   const [inWishlist, setInWishlist] = useState(false);
   const [userGameId, setUserGameId] = useState<number | null>(null);
   const [addingToLibrary, setAddingToLibrary] = useState(false);
+  const [showPlatformSelector, setShowPlatformSelector] = useState(false);
 
   useEffect(() => {
     const loggedIn = !!getAuthToken();
     setIsLoggedIn(loggedIn);
     loadGameDetails();
+    loadPlatforms();
     if (loggedIn) {
       checkLibraryStatus();
     }
@@ -40,6 +44,18 @@ export default function GameDetailPage() {
       setError(err instanceof Error ? err.message : 'Failed to load game details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadPlatforms = async () => {
+    try {
+      const platformData = await gamesAPI.getPlatforms(gameId);
+      setPlatforms(platformData);
+      if (platformData.length > 0) {
+        setSelectedPlatform(platformData[0].platform_id);
+      }
+    } catch (err) {
+      console.log('Failed to load platforms:', err);
     }
   };
 
@@ -60,25 +76,45 @@ export default function GameDetailPage() {
       return;
     }
 
+    // Show platform selector if not already in library
+    if (!inLibrary && !inWishlist) {
+      setShowPlatformSelector(true);
+      return;
+    }
+
     try {
       setAddingToLibrary(true);
 
       // If already in wishlist, update status to owned
       if (inWishlist && userGameId) {
         await libraryAPI.updateGameInLibrary(userGameId, { status: 'owned' });
-      } else {
-        // Add new game to library
-        await libraryAPI.addGameToLibrary({
-          gameId,
-          status: 'owned',
-          playtimeHours: 0,
-          completionPercentage: 0,
-        });
       }
 
       setInLibrary(true);
       setInWishlist(false);
       await checkLibraryStatus(); // Refresh status
+      alert('✅ Game added to your collection!');
+    } catch (error: any) {
+      console.error('Error adding to collection:', error);
+      alert('❌ ' + (error.message || 'Failed to add game to collection'));
+    } finally {
+      setAddingToLibrary(false);
+    }
+  };
+
+  const confirmAddToCollection = async () => {
+    try {
+      setAddingToLibrary(true);
+      await libraryAPI.addGameToLibrary({
+        gameId,
+        status: 'owned',
+        platformId: selectedPlatform,
+        playtimeHours: 0,
+        completionPercentage: 0,
+      });
+      setInLibrary(true);
+      setShowPlatformSelector(false);
+      await checkLibraryStatus();
       alert('✅ Game added to your collection!');
     } catch (error: any) {
       console.error('Error adding to collection:', error);
@@ -101,10 +137,11 @@ export default function GameDetailPage() {
       if (inLibrary && userGameId) {
         await libraryAPI.updateGameInLibrary(userGameId, { status: 'wishlist' });
       } else {
-        // Add new game to wishlist
+        // Add new game to wishlist (use first platform as default)
         await libraryAPI.addGameToLibrary({
           gameId,
           status: 'wishlist',
+          platformId: platforms.length > 0 ? platforms[0].platform_id : 1,
           playtimeHours: 0,
           completionPercentage: 0,
         });
@@ -310,6 +347,52 @@ export default function GameDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Platform Selector Modal */}
+          {showPlatformSelector && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-slate-800 rounded-xl p-6 max-w-md w-full mx-4 border border-purple-500/30">
+                <h3 className="text-2xl font-bold text-white mb-4">Select Platform</h3>
+                <p className="text-gray-400 mb-4">Choose which platform you own this game on:</p>
+
+                <div className="space-y-2 mb-6">
+                  {platforms.map((platform) => (
+                    <label
+                      key={platform.platform_id}
+                      className="flex items-center gap-3 p-3 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name="platform"
+                        value={platform.platform_id}
+                        checked={selectedPlatform === platform.platform_id}
+                        onChange={(e) => setSelectedPlatform(parseInt(e.target.value))}
+                        className="w-4 h-4 text-purple-600"
+                      />
+                      <span className="text-white font-medium">{platform.name}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={confirmAddToCollection}
+                    disabled={addingToLibrary}
+                    className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                  >
+                    {addingToLibrary ? 'Adding...' : 'Confirm'}
+                  </button>
+                  <button
+                    onClick={() => setShowPlatformSelector(false)}
+                    disabled={addingToLibrary}
+                    className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Reviews Section */}
           <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 border border-purple-500/20">

@@ -21,6 +21,7 @@ interface LibraryGame {
   publisher?: string;
   description?: string;
   metacriticScore?: number;
+  avgRating?: number;
   ownershipDate?: string;
 }
 
@@ -146,10 +147,8 @@ export default function LibraryPage() {
               onChange={(e) => setSortBy(e.target.value)}
               className="px-4 py-2 rounded-lg bg-slate-800 text-white border border-purple-500/30 focus:border-purple-500 focus:outline-none"
             >
-              <option value="last_played">Recently Played</option>
+              <option value="last_played">Recently Added</option>
               <option value="name">Name</option>
-              <option value="playtime">Playtime</option>
-              <option value="completion">Completion</option>
             </select>
           </div>
         </div>
@@ -209,34 +208,22 @@ export default function LibraryPage() {
                       {game.title}
                     </h3>
 
-                    {/* Progress Bar */}
-                    <div className="mb-3">
-                      <div className="flex justify-between text-xs text-gray-400 mb-1">
-                        <span>Completion</span>
-                        <span>{game.completionPercentage}%</span>
-                      </div>
-                      <div className="w-full bg-slate-700 rounded-full h-2">
-                        <div
-                          className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all"
-                          style={{ width: `${game.completionPercentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-
                     {/* Stats */}
                     <div className="space-y-2 text-sm">
-                      <div className="flex justify-between text-gray-400">
-                        <span>⏱️ Playtime</span>
-                        <span className="text-white font-medium">{game.playtimeHours}h</span>
-                      </div>
                       <div className="flex justify-between text-gray-400">
                         <span>🎮 Platform</span>
                         <span className="text-white font-medium">{game.platformName}</span>
                       </div>
-                      {game.metacriticScore && (
+                      <div className="flex justify-between text-gray-400">
+                        <span>⭐ Community Rating</span>
+                        <span className="text-white font-medium">
+                          {game.avgRating ? `${game.avgRating.toFixed(1)}/5` : 'No ratings yet'}
+                        </span>
+                      </div>
+                      {game.developer && (
                         <div className="flex justify-between text-gray-400">
-                          <span>⭐ Score</span>
-                          <span className="text-white font-medium">{game.metacriticScore}</span>
+                          <span>👨‍💻 Developer</span>
+                          <span className="text-white font-medium text-xs">{game.developer}</span>
                         </div>
                       )}
                     </div>
