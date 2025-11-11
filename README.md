@@ -54,17 +54,19 @@ This project demonstrates a complete full-stack application with:
    - Filter and sort capabilities
 
 3. **Personal Collection Management**
-   - Add games to personal collection
+   - Add games to personal collection with platform selection
+   - Choose from 8 gaming platforms (Steam, PlayStation, Xbox, Switch, etc.)
    - Maintain a wishlist of desired games
    - Switch games between collection and wishlist
    - Remove games from library
-   - View collection statistics
+   - View collection statistics with community ratings
 
 4. **Review System**
    - Write detailed game reviews
-   - Rate games on a scale of 1-10
+   - Rate games on a 5-star scale (1-5)
    - Mark games as recommended or not recommended
    - View all reviews for a specific game
+   - Community average ratings displayed across the platform
    - Paginated review display
 
 5. **Social Interaction**
@@ -259,27 +261,39 @@ Junction table for user's game collection and wishlist.
 | user_game_id | INT (PK) | Primary key |
 | user_id | INT (FK) | References USER |
 | game_id | INT (FK) | References GAME |
+| platform_id | INT (FK) | References PLATFORM |
 | status | ENUM | 'owned' or 'wishlist' |
-| playtime_hours | DECIMAL | Hours played |
-| completion_percentage | DECIMAL | Completion % |
-| added_date | TIMESTAMP | Date added |
+| ownership_date | TIMESTAMP | Date added to collection |
+| last_played | TIMESTAMP | Last played date |
 
-#### 4. REVIEW
-User reviews for games.
+#### 4. PLATFORM
+Gaming platforms available in the system.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| platform_id | INT (PK) | Primary key |
+| name | VARCHAR(50) | Platform name (Steam, PS5, Xbox, etc.) |
+| platform_type | VARCHAR(20) | Type (PC, Console, Mobile) |
+
+**Available Platforms**: Steam, PlayStation 5, Xbox Series X/S, Nintendo Switch, Epic Games Store, PlayStation 4, Xbox One, PC
+
+#### 5. REVIEW
+User reviews for games with 5-star rating system.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | review_id | INT (PK) | Primary key |
 | user_id | INT (FK) | References USER |
 | game_id | INT (FK) | References GAME |
-| rating | INT | Rating (1-10) |
+| rating | INT | Rating (1-5 stars) |
 | review_text | TEXT | Review content |
 | recommended | BOOLEAN | Recommendation flag |
+| helpful_count | INT | Number of helpful votes |
 | likes_count | INT | Number of likes |
 | replies_count | INT | Number of replies |
 | created_date | TIMESTAMP | Creation date |
 
-#### 5. REVIEW_LIKE
+#### 6. REVIEW_LIKE
 Tracks which users liked which reviews.
 
 | Column | Type | Description |
@@ -291,7 +305,7 @@ Tracks which users liked which reviews.
 
 **Unique constraint**: (review_id, user_id) - prevents duplicate likes
 
-#### 6. REVIEW_REPLY
+#### 7. REVIEW_REPLY
 Comments/replies on reviews.
 
 | Column | Type | Description |
@@ -302,7 +316,7 @@ Comments/replies on reviews.
 | reply_text | TEXT | Reply content |
 | created_at | TIMESTAMP | Reply timestamp |
 
-#### 7. ACTIVITY
+#### 8. ACTIVITY
 Tracks user activities for the community feed.
 
 | Column | Type | Description |
@@ -321,6 +335,15 @@ Tracks user activities for the community feed.
 - `like_review`: User liked a review
 - `reply_review`: User replied to a review
 - `rate_game`: User rated a game (reserved)
+
+### Database Statistics
+
+- **11 Tables**: Complete relational schema
+- **16 Foreign Keys**: Enforcing referential integrity
+- **21 Indexes**: Optimized for query performance
+- **30 Games**: Pre-loaded popular games
+- **8 Platforms**: Multi-platform support
+- **16 Genres**: Comprehensive game categorization
 
 ### Database Indexes
 
@@ -447,11 +470,12 @@ Open your web browser and navigate to:
 
 3. **Add to Collection**
    - On a game detail page, click "Add to Collection"
+   - Select your gaming platform from the modal
    - Or click "Add to Wishlist" for games you want
 
 4. **Write a Review**
    - On a game detail page, scroll to the review section
-   - Enter your rating (1-10) and review text
+   - Enter your rating (1-5 stars) and review text
    - Submit your review
 
 5. **Engage with Community**
@@ -548,8 +572,28 @@ Response: 200 OK
   "gameId": 1,
   "title": "Elden Ring",
   "description": "An action RPG...",
+  "avgRating": 4.5,
   ...
 }
+```
+
+**Get Game Platforms**
+```http
+GET /api/games/{id}/platforms
+
+Response: 200 OK
+[
+  {
+    "platform_id": 1,
+    "name": "Steam",
+    "platform_type": "PC"
+  },
+  {
+    "platform_id": 2,
+    "name": "PlayStation 5",
+    "platform_type": "Console"
+  }
+]
 ```
 
 **Search Games**
@@ -578,7 +622,7 @@ Response: 200 OK
     "reviewId": 1,
     "userId": 5,
     "gameId": 1,
-    "rating": 9,
+    "rating": 5,
     "reviewText": "Amazing game!",
     "recommended": true,
     "likesCount": 15,
@@ -599,7 +643,7 @@ Content-Type: application/json
 
 {
   "gameId": 1,
-  "rating": 9,
+  "rating": 5,
   "reviewText": "This game is incredible!",
   "recommended": true
 }
@@ -609,6 +653,7 @@ Response: 201 Created
   "reviewId": 42,
   "userId": 1,
   "gameId": 1,
+  "rating": 5,
   ...
 }
 ```
@@ -815,7 +860,7 @@ All endpoints may return error responses:
 ```http
 400 Bad Request
 {
-  "error": "Invalid input: rating must be between 1 and 10"
+  "error": "Invalid input: rating must be between 1 and 5"
 }
 
 401 Unauthorized
@@ -1149,6 +1194,8 @@ public List<Review> getGameReviews(Integer gameId, int page, int size) {
 
 #### Collection Management
 - [ ] Add game to collection
+- [ ] Select platform when adding to collection
+- [ ] Verify platform selection modal appears
 - [ ] Add game to wishlist
 - [ ] Switch game from wishlist to collection
 - [ ] Switch game from collection to wishlist
@@ -1156,13 +1203,16 @@ public List<Review> getGameReviews(Integer gameId, int page, int size) {
 - [ ] Remove game from wishlist
 - [ ] View collection in library page
 - [ ] Filter by collection/wishlist
+- [ ] Verify community ratings display correctly
 
 #### Review System
-- [ ] Write review with rating 1-10
+- [ ] Write review with rating 1-5 stars
 - [ ] Submit review without rating (should fail)
 - [ ] View reviews on game detail page
 - [ ] See review count update after posting
 - [ ] View own reviews on profile page
+- [ ] Verify star display matches rating (e.g., 3 stars shows 3 ⭐)
+- [ ] Check community average rating calculation
 
 #### Social Features
 - [ ] Like a review
@@ -1257,4 +1307,96 @@ docker exec gamehub-mysql mysql -ugamehub -pgamehub123 \
 docker exec gamehub-mysql mysql -ugamehub -pgamehub123 \
   -e "SELECT AVG(rating) as avg_rating, COUNT(*) as review_count FROM REVIEW;" gamehub
 ```
+
+**Check Rating Distribution**:
+```bash
+docker exec gamehub-mysql mysql -ugamehub -pgamehub123 \
+  -e "SELECT rating, COUNT(*) as count FROM REVIEW GROUP BY rating ORDER BY rating;" gamehub
+```
+
+**Check Platform Usage**:
+```bash
+docker exec gamehub-mysql mysql -ugamehub -pgamehub123 \
+  -e "SELECT p.name, COUNT(*) as count FROM USER_GAME ug JOIN PLATFORM p ON ug.platform_id = p.platform_id GROUP BY p.name;" gamehub
+```
+
+---
+
+## 📝 Recent Updates
+
+### Version 2.0 - Community Rating System (November 2025)
+
+**Major Changes:**
+
+1. **5-Star Rating System** ⭐
+   - Changed from 10-point scale to 5-star rating system
+   - Updated database constraint: `CHECK (rating >= 1 AND rating <= 5)`
+   - Fixed star display to show only rated stars (e.g., 3 stars = ⭐⭐⭐)
+   - All existing reviews migrated to 5-star scale
+
+2. **Platform Selection Feature** 🎮
+   - Added platform selection modal when adding games to collection
+   - Support for 8 gaming platforms: Steam, PS5, Xbox Series X/S, Switch, Epic Games, PS4, Xbox One, PC
+   - Dynamic platform loading from database
+   - Platform information stored in USER_GAME table
+
+3. **Community Rating Integration** 📊
+   - Replaced Metacritic scores with community average ratings
+   - Real-time calculation of average ratings from user reviews
+   - Display format: "4.2/5" or "No ratings yet"
+   - Integrated across Games page and Library page
+
+4. **UI/UX Improvements** ✨
+   - Removed playtime tracking displays (simplified focus)
+   - Removed completion percentage indicators
+   - Removed achievement tracking features
+   - Cleaner, more focused game collection interface
+   - Enhanced review section with proper star visualization
+
+5. **Database Enhancements** 🗄️
+   - Added `avgRating` field to Game entity
+   - Added `platform_id` foreign key to USER_GAME table
+   - Added `helpful_count` field to REVIEW table
+   - Fixed data insertion order in initialization script
+   - Added 10 sample reviews with 5-star ratings
+
+**Technical Improvements:**
+- New API endpoint: `GET /api/games/:id/platforms`
+- Enhanced GameRepository with average rating subqueries
+- Updated UserGameRepository to include community ratings
+- Improved frontend state management for platform selection
+- Complete database initialization script verification
+
+**Files Modified:**
+- Backend: `Game.java`, `GameController.java`, `GameRepository.java`, `UserGameRepository.java`
+- Frontend: `games/[id]/page.tsx`, `games/page.tsx`, `library/page.tsx`, `ReviewSection.tsx`, `api.ts`
+- Database: `init_database.sql` (structure and sample data)
+
+---
+
+## 📄 License
+
+This project is created for educational purposes as part of a database course final project.
+
+---
+
+## 👥 Contributors
+
+- **Developer**: Hanqi Jiang
+- **Course**: Database Systems
+- **Institution**: Database Course Final Project
+- **Year**: 2025
+
+---
+
+## 🙏 Acknowledgments
+
+- Spring Boot and Spring Framework teams
+- Next.js and React communities
+- MySQL database system
+- All open-source contributors
+
+---
+
+**GameHub** - Building a vibrant gaming community, one review at a time! 🎮✨
 
