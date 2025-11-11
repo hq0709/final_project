@@ -22,5 +22,6 @@ public class Game {
     private Integer totalAchievements;
     private Double avgCompletionTimeHours;
     private Integer metacriticScore;
+    private Double avgRating;
 }
 

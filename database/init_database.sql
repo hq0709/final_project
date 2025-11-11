@@ -355,6 +355,22 @@ INSERT INTO GAME_GENRE (game_id, genre_id) VALUES
 (30, 8), (30, 3), (30, 15);
 
 -- ============================================================================
+-- SAMPLE DATA - REVIEWS
+-- ============================================================================
+-- Sample reviews with 5-point rating scale
+INSERT INTO REVIEW (user_id, game_id, rating, review_text, recommended, helpful_count, likes_count) VALUES
+(1, 1, 5, 'Absolutely masterpiece! The story, gameplay, and graphics are all top-notch. A must-play for any gamer.', TRUE, 15, 23),
+(2, 1, 4, 'Great game overall, but the combat can feel repetitive at times. Still highly recommend it!', TRUE, 8, 12),
+(3, 2, 5, 'One of the best open-world games ever made. The attention to detail is incredible.', TRUE, 20, 35),
+(1, 3, 4, 'Fantastic RPG with deep storytelling. Some technical issues on launch but mostly fixed now.', TRUE, 12, 18),
+(2, 5, 5, 'Perfect blend of action and stealth. The world feels alive and reactive to your choices.', TRUE, 18, 28),
+(4, 8, 3, 'Good game but not for everyone. The difficulty can be frustrating at times.', TRUE, 5, 7),
+(5, 10, 5, 'Challenging but fair. Every victory feels earned. Amazing boss fights!', TRUE, 22, 40),
+(3, 15, 4, 'Beautiful world and engaging story. Combat is fun but could use more variety.', TRUE, 10, 15),
+(4, 20, 2, 'Disappointing compared to the hype. Lots of bugs and performance issues.', FALSE, 8, 10),
+(5, 25, 5, 'Incredible atmosphere and level design. A true work of art.', TRUE, 16, 25);
+
+-- ============================================================================
 -- SAMPLE DATA - USERS
 -- ============================================================================
 -- Password for all demo users: demo123
@@ -376,6 +392,7 @@ INSERT INTO USER (username, email, password_hash, display_name, bio, country, le
 -- - 8 platforms configured
 -- - 16 genres configured
 -- - 5 demo users created (password: demo123)
+-- - 10 sample reviews with 5-point rating scale
 -- - All relationships established
 -- - Social features tables created
 --
@@ -385,6 +402,10 @@ INSERT INTO USER (username, email, password_hash, display_name, bio, country, le
 -- - bob@gamehub.com / demo123
 -- - charlie@gamehub.com / demo123
 -- - diana@gamehub.com / demo123
+--
+-- Rating System:
+-- - Reviews use 5-point scale (1-5 stars)
+-- - Community ratings calculated from review averages
 --
 -- Next steps:
 -- 1. Start the backend: cd backend && mvn spring-boot:run

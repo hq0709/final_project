@@ -28,6 +28,7 @@ export interface Game {
   totalAchievements: number;
   avgCompletionTimeHours: number;
   metacriticScore: number;
+  avgRating?: number;
 }
 
 export interface Achievement {

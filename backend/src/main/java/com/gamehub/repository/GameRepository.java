@@ -50,11 +50,38 @@ public class GameRepository {
     }
 
     /**
-     * Get all games
+     * Get all games with average ratings
      */
     public List<Game> findAll() {
-        String sql = "SELECT * FROM GAME ORDER BY title";
-        return jdbcTemplate.query(sql, gameRowMapper);
+        String sql = "SELECT g.*, " +
+                    "(SELECT AVG(r.rating) FROM REVIEW r WHERE r.game_id = g.game_id) as avg_rating " +
+                    "FROM GAME g " +
+                    "ORDER BY g.title";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Game game = new Game();
+            game.setGameId(rs.getInt("game_id"));
+            game.setTitle(rs.getString("title"));
+            game.setDescription(rs.getString("description"));
+
+            Date releaseDate = rs.getDate("release_date");
+            if (releaseDate != null) {
+                game.setReleaseDate(releaseDate.toLocalDate());
+            }
+
+            game.setDeveloper(rs.getString("developer"));
+            game.setPublisher(rs.getString("publisher"));
+            game.setCoverImageUrl(rs.getString("cover_image_url"));
+            game.setTotalAchievements(rs.getInt("total_achievements"));
+            game.setAvgCompletionTimeHours(rs.getDouble("avg_completion_time_hours"));
+            game.setMetacriticScore(rs.getInt("metacritic_score"));
+
+            Double avgRating = rs.getDouble("avg_rating");
+            if (!rs.wasNull()) {
+                game.setAvgRating(avgRating);
+            }
+
+            return game;
+        });
     }
 
     /**

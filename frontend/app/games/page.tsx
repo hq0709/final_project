@@ -131,7 +131,9 @@ export default function GamesPage() {
 
                     {/* Stats */}
                     <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                      <span>⭐ {game.metacriticScore || 'N/A'}</span>
+                      <span>
+                        ⭐ {game.avgRating ? `${game.avgRating.toFixed(1)}/5` : 'No ratings'}
+                      </span>
                       <span className="text-gray-500">{game.releaseDate}</span>
                     </div>
 
