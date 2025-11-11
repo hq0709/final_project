@@ -355,6 +355,19 @@ INSERT INTO GAME_GENRE (game_id, genre_id) VALUES
 (30, 8), (30, 3), (30, 15);
 
 -- ============================================================================
+-- SAMPLE DATA - USERS
+-- ============================================================================
+-- Password for all demo users: demo123
+-- Password hash generated using BCrypt with strength 12
+
+INSERT INTO USER (username, email, password_hash, display_name, bio, country, level, reviews_count, total_achievements, total_playtime_hours, account_created, last_login) VALUES
+('demo', 'demo@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Demo User', 'Welcome to GameHub! This is a demo account.', 'United States', 1, 0, 0, 0, NOW(), NOW()),
+('alice', 'alice@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Alice Johnson', 'RPG enthusiast and achievement hunter', 'Canada', 15, 12, 150, 320, NOW(), NOW()),
+('bob', 'bob@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Bob Smith', 'Indie game lover', 'United Kingdom', 8, 5, 85, 180, NOW(), NOW()),
+('charlie', 'charlie@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Charlie Brown', 'Speedrunner and platformer fan', 'Australia', 20, 18, 200, 450, NOW(), NOW()),
+('diana', 'diana@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Diana Prince', 'Open world explorer', 'Germany', 12, 8, 120, 280, NOW(), NOW());
+
+-- ============================================================================
 -- SAMPLE DATA - REVIEWS
 -- ============================================================================
 -- Sample reviews with 5-point rating scale
@@ -369,19 +382,6 @@ INSERT INTO REVIEW (user_id, game_id, rating, review_text, recommended, helpful_
 (3, 15, 4, 'Beautiful world and engaging story. Combat is fun but could use more variety.', TRUE, 10, 15),
 (4, 20, 2, 'Disappointing compared to the hype. Lots of bugs and performance issues.', FALSE, 8, 10),
 (5, 25, 5, 'Incredible atmosphere and level design. A true work of art.', TRUE, 16, 25);
-
--- ============================================================================
--- SAMPLE DATA - USERS
--- ============================================================================
--- Password for all demo users: demo123
--- Password hash generated using BCrypt with strength 12
-
-INSERT INTO USER (username, email, password_hash, display_name, bio, country, level, reviews_count, total_achievements, total_playtime_hours, account_created, last_login) VALUES
-('demo', 'demo@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Demo User', 'Welcome to GameHub! This is a demo account.', 'United States', 1, 0, 0, 0, NOW(), NOW()),
-('alice', 'alice@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Alice Johnson', 'RPG enthusiast and achievement hunter', 'Canada', 15, 12, 150, 320, NOW(), NOW()),
-('bob', 'bob@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Bob Smith', 'Indie game lover', 'United Kingdom', 8, 5, 85, 180, NOW(), NOW()),
-('charlie', 'charlie@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Charlie Brown', 'Speedrunner and platformer fan', 'Australia', 20, 18, 200, 450, NOW(), NOW()),
-('diana', 'diana@gamehub.com', '$2b$12$Q6sD7VAHtNd0Bh2ajiKXOumkoTLtejKxbaE35IDOO6NmI6RCKU126', 'Diana Prince', 'Open world explorer', 'Germany', 12, 8, 120, 280, NOW(), NOW());
 
 -- ============================================================================
 -- DATABASE INITIALIZATION COMPLETE
