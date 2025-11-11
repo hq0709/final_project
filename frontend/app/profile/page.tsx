@@ -42,7 +42,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!getAuthToken()) {
-      router.push('/gametracker-auth');
+      router.push('/auth');
       return;
     }
     loadProfileData();

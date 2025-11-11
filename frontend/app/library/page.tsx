@@ -33,7 +33,7 @@ export default function LibraryPage() {
 
   useEffect(() => {
     if (!getAuthToken()) {
-      router.push('/gametracker-auth');
+      router.push('/auth');
       return;
     }
     loadLibrary();

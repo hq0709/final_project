@@ -56,7 +56,7 @@ export default function GameDetailPage() {
 
   const handleAddToCollection = async () => {
     if (!isLoggedIn) {
-      router.push('/gametracker-auth');
+      router.push('/auth');
       return;
     }
 
@@ -90,7 +90,7 @@ export default function GameDetailPage() {
 
   const handleAddToWishlist = async () => {
     if (!isLoggedIn) {
-      router.push('/gametracker-auth');
+      router.push('/auth');
       return;
     }
 
@@ -124,7 +124,7 @@ export default function GameDetailPage() {
 
   const handleRemoveFromLibrary = async () => {
     if (!isLoggedIn) {
-      router.push('/gametracker-auth');
+      router.push('/auth');
       return;
     }
 

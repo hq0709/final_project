@@ -12,11 +12,11 @@
         <relativePath/>
     </parent>
     
-    <groupId>com.gametracker</groupId>
-    <artifactId>gametracker-backend</artifactId>
+    <groupId>com.gamehub</groupId>
+    <artifactId>gamehub-backend</artifactId>
     <version>1.0.0</version>
-    <name>GameTracker Pro Backend</name>
-    <description>Gaming Achievement Tracker Platform - Backend API</description>
+    <name>GameHub Backend</name>
+    <description>Gaming Social Platform - Backend API</description>
     
     <properties>
         <java.version>17</java.version>

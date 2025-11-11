@@ -104,7 +104,7 @@ export default function Navbar() {
               </div>
             ) : (
               <Link
-                href="/gametracker-auth"
+                href="/auth"
                 className="px-6 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium shadow-lg shadow-purple-500/50 transition-all hover:scale-105"
               >
                 Login / Register
