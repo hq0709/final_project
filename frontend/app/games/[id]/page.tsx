@@ -227,59 +227,65 @@ export default function GameDetailPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="min-h-screen bg-grid bg-fixed bg-slate-900">
+        <div className="max-w-7xl mx-auto px-4 py-8 pt-28">
           {/* Back Button */}
           <Link
             href="/games"
-            className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 mb-6 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg glass hover:bg-purple-500/20 text-purple-300 mb-8 transition-all hover:-translate-x-1 group"
           >
-            <span>←</span>
+            <span className="group-hover:-translate-x-1 transition-transform">←</span>
             <span>Back to Games</span>
           </Link>
 
           {/* Game Header */}
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 border border-purple-500/20 mb-8">
-            <div className="flex gap-8">
+          <div className="glass rounded-2xl p-8 mb-8 animate-fade-in relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50"></div>
+            <div className="flex flex-col md:flex-row gap-8 relative z-10">
               {/* Cover Image */}
               {game.coverImageUrl && (
                 <div className="flex-shrink-0">
-                  <img
-                    src={game.coverImageUrl}
-                    alt={game.title}
-                    className="w-64 h-96 object-cover rounded-lg shadow-2xl"
-                  />
+                  <div className="relative rounded-lg overflow-hidden shadow-2xl shadow-purple-900/40 border border-purple-500/20 group-hover:border-purple-500/50 transition-colors">
+                    <img
+                      src={game.coverImageUrl}
+                      alt={game.title}
+                      className="w-full md:w-64 h-96 object-cover transform transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  </div>
                 </div>
               )}
 
               {/* Game Info */}
               <div className="flex-1">
-                <h1 className="text-4xl font-bold text-white mb-4">{game.title}</h1>
-                
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <p className="text-gray-400 text-sm">Developer</p>
+                <h1 className="text-5xl font-bold text-white mb-6 neon-text tracking-tight">{game.title}</h1>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                  <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5 hover:border-purple-500/30 transition-colors">
+                    <p className="text-purple-400 text-xs uppercase tracking-wider mb-1">Developer</p>
                     <p className="text-white font-semibold">{game.developer}</p>
                   </div>
-                  <div>
-                    <p className="text-gray-400 text-sm">Publisher</p>
+                  <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5 hover:border-purple-500/30 transition-colors">
+                    <p className="text-purple-400 text-xs uppercase tracking-wider mb-1">Publisher</p>
                     <p className="text-white font-semibold">{game.publisher}</p>
                   </div>
-                  <div>
-                    <p className="text-gray-400 text-sm">Release Date</p>
+                  <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5 hover:border-purple-500/30 transition-colors">
+                    <p className="text-purple-400 text-xs uppercase tracking-wider mb-1">Release Date</p>
                     <p className="text-white font-semibold">
                       {new Date(game.releaseDate).toLocaleDateString()}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-gray-400 text-sm">Metacritic Score</p>
-                    <p className="text-white font-semibold">
-                      {game.metacriticScore > 0 ? `${game.metacriticScore}/100` : 'N/A'}
+                  <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5 hover:border-purple-500/30 transition-colors">
+                    <p className="text-purple-400 text-xs uppercase tracking-wider mb-1">Metacritic</p>
+                    <p className={`text-xl font-bold ${game.metacriticScore >= 80 ? 'text-green-400' : game.metacriticScore >= 60 ? 'text-yellow-400' : 'text-red-400'}`}>
+                      {game.metacriticScore > 0 ? game.metacriticScore : 'N/A'}
                     </p>
                   </div>
                 </div>
 
-                <p className="text-gray-300 mb-6">{game.description}</p>
+                <p className="text-gray-300 mb-8 text-lg leading-relaxed border-l-2 border-purple-500/30 pl-6 italic">
+                  {game.description}
+                </p>
 
                 {/* Action Buttons */}
                 <div className="flex gap-4 flex-wrap">
@@ -288,58 +294,58 @@ export default function GameDetailPage() {
                       <button
                         onClick={handleAddToCollection}
                         disabled={addingToLibrary}
-                        className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                        className="px-8 py-4 bg-purple-600 hover:bg-purple-500 disabled:bg-gray-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 hover:-translate-y-1 flex items-center gap-2"
                       >
-                        {addingToLibrary ? 'Adding...' : '📚 Add to Collection'}
+                        <span>📚</span> Add to Collection
                       </button>
                       <button
                         onClick={handleAddToWishlist}
                         disabled={addingToLibrary}
-                        className="px-6 py-3 bg-slate-700 hover:bg-slate-600 disabled:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                        className="px-8 py-4 glass hover:bg-white/10 disabled:bg-gray-600 text-white rounded-xl font-bold transition-all hover:-translate-y-1 flex items-center gap-2"
                       >
-                        {addingToLibrary ? 'Adding...' : '⭐ Add to Wishlist'}
+                        <span>⭐</span> Add to Wishlist
                       </button>
                     </>
                   )}
                   {inLibrary && !inWishlist && (
                     <>
-                      <div className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold flex items-center gap-2">
-                        <span>✓ In Your Collection</span>
+                      <div className="px-6 py-4 bg-green-500/20 border border-green-500/30 text-green-400 rounded-xl font-bold flex items-center gap-2">
+                        <span>✓</span> In Collection
                       </div>
                       <button
                         onClick={handleAddToWishlist}
                         disabled={addingToLibrary}
-                        className="px-6 py-3 bg-slate-700 hover:bg-slate-600 disabled:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                        className="px-6 py-4 glass hover:bg-white/10 disabled:bg-gray-600 text-white rounded-xl font-bold transition-all hover:-translate-y-1"
                       >
-                        {addingToLibrary ? 'Moving...' : '⭐ Move to Wishlist'}
+                        Move to Wishlist
                       </button>
                       <button
                         onClick={handleRemoveFromLibrary}
                         disabled={addingToLibrary}
-                        className="px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                        className="px-6 py-4 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 rounded-xl font-bold transition-all hover:-translate-y-1"
                       >
-                        {addingToLibrary ? 'Removing...' : '🗑️ Remove'}
+                        Remove
                       </button>
                     </>
                   )}
                   {inWishlist && (
                     <>
-                      <div className="px-6 py-3 bg-yellow-600 text-white rounded-lg font-semibold flex items-center gap-2">
-                        <span>⭐ In Your Wishlist</span>
+                      <div className="px-6 py-4 bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 rounded-xl font-bold flex items-center gap-2">
+                        <span>⭐</span> In Wishlist
                       </div>
                       <button
                         onClick={handleAddToCollection}
                         disabled={addingToLibrary}
-                        className="px-6 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                        className="px-6 py-4 bg-purple-600 hover:bg-purple-500 disabled:bg-gray-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 hover:-translate-y-1"
                       >
-                        {addingToLibrary ? 'Moving...' : '📚 Move to Collection'}
+                        Move to Collection
                       </button>
                       <button
                         onClick={handleRemoveFromLibrary}
                         disabled={addingToLibrary}
-                        className="px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                        className="px-6 py-4 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 rounded-xl font-bold transition-all hover:-translate-y-1"
                       >
-                        {addingToLibrary ? 'Removing...' : '🗑️ Remove'}
+                        Remove
                       </button>
                     </>
                   )}
@@ -350,16 +356,19 @@ export default function GameDetailPage() {
 
           {/* Platform Selector Modal */}
           {showPlatformSelector && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <div className="bg-slate-800 rounded-xl p-6 max-w-md w-full mx-4 border border-purple-500/30">
-                <h3 className="text-2xl font-bold text-white mb-4">Select Platform</h3>
-                <p className="text-gray-400 mb-4">Choose which platform you own this game on:</p>
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+              <div className="glass rounded-2xl p-8 max-w-md w-full mx-4 border border-purple-500/30 shadow-2xl shadow-purple-900/50">
+                <h3 className="text-2xl font-bold text-white mb-2">Select Platform</h3>
+                <p className="text-gray-400 mb-6">Choose which platform you own this game on:</p>
 
-                <div className="space-y-2 mb-6">
+                <div className="space-y-3 mb-8">
                   {platforms.map((platform) => (
                     <label
                       key={platform.platform_id}
-                      className="flex items-center gap-3 p-3 bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-600 transition-colors"
+                      className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all border ${selectedPlatform === platform.platform_id
+                          ? 'bg-purple-600/20 border-purple-500 text-white'
+                          : 'bg-slate-800/50 border-white/5 text-gray-400 hover:bg-slate-700 hover:border-white/10'
+                        }`}
                     >
                       <input
                         type="radio"
@@ -367,25 +376,25 @@ export default function GameDetailPage() {
                         value={platform.platform_id}
                         checked={selectedPlatform === platform.platform_id}
                         onChange={(e) => setSelectedPlatform(parseInt(e.target.value))}
-                        className="w-4 h-4 text-purple-600"
+                        className="w-5 h-5 text-purple-600 accent-purple-600"
                       />
-                      <span className="text-white font-medium">{platform.name}</span>
+                      <span className="font-bold text-lg">{platform.name}</span>
                     </label>
                   ))}
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-4">
                   <button
                     onClick={confirmAddToCollection}
                     disabled={addingToLibrary}
-                    className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                    className="flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-500 disabled:bg-gray-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-600/30"
                   >
                     {addingToLibrary ? 'Adding...' : 'Confirm'}
                   </button>
                   <button
                     onClick={() => setShowPlatformSelector(false)}
                     disabled={addingToLibrary}
-                    className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+                    className="flex-1 px-6 py-3 glass hover:bg-white/10 disabled:bg-gray-600 text-white rounded-xl font-bold transition-all"
                   >
                     Cancel
                   </button>
@@ -395,7 +404,8 @@ export default function GameDetailPage() {
           )}
 
           {/* Reviews Section */}
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 border border-purple-500/20">
+          <div className="glass rounded-2xl p-8 border border-purple-500/20 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-[80px] -z-10"></div>
             <ReviewSection gameId={gameId} />
           </div>
         </div>

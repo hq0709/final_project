@@ -91,26 +91,26 @@ public class ReviewRepository {
      */
     public List<Map<String, Object>> findByGameId(Integer gameId, int page, int size) {
         String sql = """
-            SELECT
-                r.review_id,
-                r.user_id,
-                r.game_id,
-                r.rating,
-                r.review_text,
-                r.helpful_count,
-                r.likes_count,
-                r.replies_count,
-                r.created_date,
-                u.username,
-                u.display_name,
-                u.level,
-                u.reviews_count
-            FROM REVIEW r
-            JOIN USER u ON r.user_id = u.user_id
-            WHERE r.game_id = ?
-            ORDER BY r.created_date DESC
-            LIMIT ? OFFSET ?
-        """;
+                    SELECT
+                        r.review_id,
+                        r.user_id,
+                        r.game_id,
+                        r.rating,
+                        r.review_text,
+                        r.helpful_count,
+                        r.likes_count,
+                        r.replies_count,
+                        r.created_date,
+                        u.username,
+                        u.display_name,
+                        u.level,
+                        u.reviews_count
+                    FROM REVIEW r
+                    JOIN USER u ON r.user_id = u.user_id
+                    WHERE r.game_id = ?
+                    ORDER BY r.created_date DESC
+                    LIMIT ? OFFSET ?
+                """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Map<String, Object> result = new HashMap<>();
@@ -140,23 +140,23 @@ public class ReviewRepository {
      */
     public List<Map<String, Object>> findByUserId(Integer userId) {
         String sql = """
-            SELECT
-                r.review_id,
-                r.user_id,
-                r.game_id,
-                r.rating,
-                r.review_text,
-                r.helpful_count,
-                r.likes_count,
-                r.replies_count,
-                r.created_date,
-                g.title as game_title,
-                g.cover_image_url
-            FROM REVIEW r
-            JOIN GAME g ON r.game_id = g.game_id
-            WHERE r.user_id = ?
-            ORDER BY r.created_date DESC
-        """;
+                    SELECT
+                        r.review_id,
+                        r.user_id,
+                        r.game_id,
+                        r.rating,
+                        r.review_text,
+                        r.helpful_count,
+                        r.likes_count,
+                        r.replies_count,
+                        r.created_date,
+                        g.title as game_title,
+                        g.cover_image_url
+                    FROM REVIEW r
+                    JOIN GAME g ON r.game_id = g.game_id
+                    WHERE r.user_id = ?
+                    ORDER BY r.created_date DESC
+                """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Map<String, Object> result = new HashMap<>();
@@ -180,6 +180,57 @@ public class ReviewRepository {
     }
 
     /**
+     * Get recent reviews globally
+     */
+    public List<Map<String, Object>> getRecentReviews(int limit) {
+        String sql = """
+                    SELECT
+                        r.review_id,
+                        r.user_id,
+                        r.game_id,
+                        r.rating,
+                        r.review_text,
+                        r.helpful_count,
+                        r.likes_count,
+                        r.replies_count,
+                        r.created_date,
+                        u.username,
+                        u.display_name,
+                        u.avatar_url,
+                        g.title as game_title,
+                        g.cover_image_url
+                    FROM REVIEW r
+                    JOIN USER u ON r.user_id = u.user_id
+                    JOIN GAME g ON r.game_id = g.game_id
+                    ORDER BY r.created_date DESC
+                    LIMIT ?
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Map<String, Object> result = new HashMap<>();
+            result.put("reviewId", rs.getInt("review_id"));
+            result.put("userId", rs.getInt("user_id"));
+            result.put("gameId", rs.getInt("game_id"));
+            result.put("username", rs.getString("username"));
+            result.put("displayName", rs.getString("display_name"));
+            result.put("avatarUrl", rs.getString("avatar_url"));
+            result.put("gameTitle", rs.getString("game_title"));
+            result.put("gameCoverUrl", rs.getString("cover_image_url"));
+            result.put("rating", rs.getInt("rating"));
+            result.put("reviewText", rs.getString("review_text"));
+            result.put("helpfulCount", rs.getInt("helpful_count"));
+            result.put("likesCount", rs.getInt("likes_count"));
+            result.put("repliesCount", rs.getInt("replies_count"));
+
+            if (rs.getTimestamp("created_date") != null) {
+                result.put("createdDate", rs.getTimestamp("created_date").toLocalDateTime().toString());
+            }
+
+            return result;
+        }, limit);
+    }
+
+    /**
      * Find review by ID
      */
     public Review findById(Integer reviewId) {
@@ -193,9 +244,9 @@ public class ReviewRepository {
      */
     public Review save(Review review) {
         String sql = """
-            INSERT INTO REVIEW (user_id, game_id, rating, review_text, helpful_count, likes_count, replies_count)
-            VALUES (?, ?, ?, ?, 0, 0, 0)
-        """;
+                    INSERT INTO REVIEW (user_id, game_id, rating, review_text, helpful_count, likes_count, replies_count)
+                    VALUES (?, ?, ?, ?, 0, 0, 0)
+                """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -216,18 +267,17 @@ public class ReviewRepository {
      */
     public Review update(Review review) {
         String sql = """
-            UPDATE REVIEW
-            SET rating = ?,
-                review_text = ?,
-                updated_date = CURRENT_TIMESTAMP
-            WHERE review_id = ?
-        """;
+                    UPDATE REVIEW
+                    SET rating = ?,
+                        review_text = ?,
+                        updated_date = CURRENT_TIMESTAMP
+                    WHERE review_id = ?
+                """;
 
         jdbcTemplate.update(sql,
-            review.getRating(),
-            review.getReviewText(),
-            review.getReviewId()
-        );
+                review.getRating(),
+                review.getReviewText(),
+                review.getReviewId());
 
         return findById(review.getReviewId());
     }
@@ -266,4 +316,3 @@ public class ReviewRepository {
         jdbcTemplate.update(sql, delta, reviewId);
     }
 }
-

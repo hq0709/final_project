@@ -34,7 +34,7 @@ public class ReviewLikeRepository {
      * Add a like to a review
      */
     public ReviewLike addLike(Integer reviewId, Integer userId) {
-        String sql = "INSERT INTO REVIEW_LIKE (review_id, user_id) VALUES (?, ?)";
+        String sql = "INSERT INTO REVIEW_LIKE (review_id, user_id, created_at) VALUES (?, ?, NOW())";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -100,4 +100,3 @@ public class ReviewLikeRepository {
         return jdbcTemplate.queryForList(sql, Integer.class, reviewId);
     }
 }
-

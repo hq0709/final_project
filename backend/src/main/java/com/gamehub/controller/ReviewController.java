@@ -2,12 +2,7 @@ package com.gamehub.controller;
 
 import com.gamehub.model.Review;
 import com.gamehub.model.ReviewReply;
-import com.gamehub.repository.ReviewRepository;
-import com.gamehub.repository.ReviewLikeRepository;
-import com.gamehub.repository.ReviewReplyRepository;
-import com.gamehub.repository.ActivityRepository;
-import com.gamehub.repository.GameRepository;
-import com.gamehub.model.Game;
+import com.gamehub.service.ReviewService;
 import com.gamehub.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,23 +18,11 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/reviews")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001" })
 public class ReviewController {
 
     @Autowired
-    private ReviewRepository reviewRepository;
-
-    @Autowired
-    private ReviewLikeRepository reviewLikeRepository;
-
-    @Autowired
-    private ReviewReplyRepository reviewReplyRepository;
-
-    @Autowired
-    private ActivityRepository activityRepository;
-
-    @Autowired
-    private GameRepository gameRepository;
+    private ReviewService reviewService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -53,7 +36,7 @@ public class ReviewController {
             @PathVariable Integer gameId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        List<Map<String, Object>> reviews = reviewRepository.findByGameId(gameId, page, size);
+        List<Map<String, Object>> reviews = reviewService.getGameReviews(gameId, page, size);
         return ResponseEntity.ok(reviews);
     }
 
@@ -66,14 +49,25 @@ public class ReviewController {
         try {
             String token = authHeader.replace("Bearer ", "");
             Integer userId = jwtUtil.extractUserId(token);
-            
-            List<Map<String, Object>> reviews = reviewRepository.findByUserId(userId);
+
+            List<Map<String, Object>> reviews = reviewService.getUserReviews(userId);
             return ResponseEntity.ok(reviews);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
+    }
+
+    /**
+     * Get recent reviews globally
+     * GET /api/reviews/recent
+     */
+    @GetMapping("/recent")
+    public ResponseEntity<List<Map<String, Object>>> getRecentReviews(
+            @RequestParam(defaultValue = "10") int limit) {
+        List<Map<String, Object>> reviews = reviewService.getRecentReviews(limit);
+        return ResponseEntity.ok(reviews);
     }
 
     /**
@@ -93,36 +87,16 @@ public class ReviewController {
             String reviewText = (String) request.get("reviewText");
             Boolean recommended = (Boolean) request.getOrDefault("recommended", true);
 
-            // Validate
-            if (gameId == null || rating == null || rating < 1 || rating > 10) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Invalid input: gameId and rating (1-10) are required");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-            }
-
-            Review review = new Review();
-            review.setUserId(userId);
-            review.setGameId(gameId);
-            review.setRating(rating);
-            review.setReviewText(reviewText);
-            review.setRecommended(recommended);
-
-            Review created = reviewRepository.save(review);
-
-            // Create activity for the review
-            try {
-                String activityText = "wrote a review for";
-                activityRepository.createActivity(userId, "post_review", gameId, created.getReviewId(), activityText);
-            } catch (Exception e) {
-                // Log but don't fail the request if activity creation fails
-                System.err.println("Failed to create activity: " + e.getMessage());
-            }
-
+            Review created = reviewService.createReview(userId, gameId, rating, reviewText, recommended);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
@@ -138,28 +112,24 @@ public class ReviewController {
         try {
             String token = authHeader.replace("Bearer ", "");
             Integer userId = jwtUtil.extractUserId(token);
-            
-            Review review = reviewRepository.findById(reviewId);
-            if (review == null || !review.getUserId().equals(userId)) {
+
+            Integer rating = request.containsKey("rating") ? (Integer) request.get("rating") : null;
+            String reviewText = request.containsKey("reviewText") ? (String) request.get("reviewText") : null;
+            Boolean recommended = request.containsKey("recommended") ? (Boolean) request.get("recommended") : null;
+
+            Review updated = reviewService.updateReview(userId, reviewId, rating, reviewText, recommended);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("not found") || e.getMessage().contains("unauthorized")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
-            
-            if (request.containsKey("rating")) {
-                review.setRating((Integer) request.get("rating"));
-            }
-            if (request.containsKey("reviewText")) {
-                review.setReviewText((String) request.get("reviewText"));
-            }
-            if (request.containsKey("recommended")) {
-                review.setRecommended((Boolean) request.get("recommended"));
-            }
-            
-            Review updated = reviewRepository.update(review);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
@@ -174,20 +144,17 @@ public class ReviewController {
         try {
             String token = authHeader.replace("Bearer ", "");
             Integer userId = jwtUtil.extractUserId(token);
-            
-            Review review = reviewRepository.findById(reviewId);
-            if (review == null || !review.getUserId().equals(userId)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-            
-            reviewRepository.delete(reviewId);
+
+            reviewService.deleteReview(userId, reviewId);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Review deleted successfully");
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
@@ -201,24 +168,24 @@ public class ReviewController {
             @PathVariable Integer reviewId,
             @RequestBody Map<String, Boolean> request) {
         try {
+            // Just checking auth
             String token = authHeader.replace("Bearer ", "");
-            Integer userId = jwtUtil.extractUserId(token);
+            jwtUtil.extractUserId(token);
 
             Boolean helpful = request.get("helpful");
-            if (helpful == null) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "helpful field is required");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-            }
+            reviewService.voteReview(reviewId, helpful);
 
-            reviewRepository.voteReview(reviewId, helpful);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Vote recorded");
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
@@ -234,34 +201,16 @@ public class ReviewController {
             String token = authHeader.replace("Bearer ", "");
             Integer userId = jwtUtil.extractUserId(token);
 
-            // Check if already liked
-            if (reviewLikeRepository.hasUserLiked(reviewId, userId)) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "You have already liked this review");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-            }
-
-            reviewLikeRepository.addLike(reviewId, userId);
-
-            // Create activity for the like
-            try {
-                Review review = reviewRepository.findById(reviewId);
-                if (review != null) {
-                    String activityText = "liked a review for";
-                    activityRepository.createActivity(userId, "like_review", review.getGameId(), reviewId, activityText);
-                }
-            } catch (Exception e) {
-                System.err.println("Failed to create activity: " + e.getMessage());
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Review liked successfully");
-            response.put("likesCount", reviewLikeRepository.getLikeCount(reviewId));
+            Map<String, Object> response = reviewService.likeReview(userId, reviewId);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
@@ -277,16 +226,12 @@ public class ReviewController {
             String token = authHeader.replace("Bearer ", "");
             Integer userId = jwtUtil.extractUserId(token);
 
-            reviewLikeRepository.removeLike(reviewId, userId);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Like removed successfully");
-            response.put("likesCount", reviewLikeRepository.getLikeCount(reviewId));
+            Map<String, Object> response = reviewService.unlikeReview(userId, reviewId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
@@ -302,11 +247,7 @@ public class ReviewController {
             String token = authHeader.replace("Bearer ", "");
             Integer userId = jwtUtil.extractUserId(token);
 
-            boolean liked = reviewLikeRepository.hasUserLiked(reviewId, userId);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("liked", liked);
-            response.put("likesCount", reviewLikeRepository.getLikeCount(reviewId));
+            Map<String, Object> response = reviewService.checkIfLiked(userId, reviewId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -322,7 +263,7 @@ public class ReviewController {
     @GetMapping("/{reviewId}/replies")
     public ResponseEntity<?> getReviewReplies(@PathVariable Integer reviewId) {
         try {
-            List<ReviewReply> replies = reviewReplyRepository.getRepliesByReviewId(reviewId);
+            List<ReviewReply> replies = reviewService.getReviewReplies(reviewId);
             return ResponseEntity.ok(replies);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -345,30 +286,16 @@ public class ReviewController {
             Integer userId = jwtUtil.extractUserId(token);
 
             String replyText = request.get("replyText");
-            if (replyText == null || replyText.trim().isEmpty()) {
-                Map<String, String> error = new HashMap<>();
-                error.put("error", "Reply text is required");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-            }
-
-            ReviewReply reply = reviewReplyRepository.addReply(reviewId, userId, replyText);
-
-            // Create activity for the reply
-            try {
-                Review review = reviewRepository.findById(reviewId);
-                if (review != null) {
-                    String activityText = "replied to a review for";
-                    activityRepository.createActivity(userId, "reply_review", review.getGameId(), reviewId, activityText);
-                }
-            } catch (Exception e) {
-                System.err.println("Failed to create activity: " + e.getMessage());
-            }
-
+            ReviewReply reply = reviewService.replyToReview(userId, reviewId, replyText);
             return ResponseEntity.status(HttpStatus.CREATED).body(reply);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
@@ -384,20 +311,16 @@ public class ReviewController {
             String token = authHeader.replace("Bearer ", "");
             Integer userId = jwtUtil.extractUserId(token);
 
-            ReviewReply reply = reviewReplyRepository.findById(replyId);
-            if (reply == null || !reply.getUserId().equals(userId)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-
-            reviewReplyRepository.delete(replyId);
+            reviewService.deleteReply(userId, replyId);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Reply deleted successfully");
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 }
-

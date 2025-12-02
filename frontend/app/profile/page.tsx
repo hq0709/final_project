@@ -148,7 +148,7 @@ export default function ProfilePage() {
     <>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-8 pt-28">
           {/* Profile Header */}
           <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 border border-purple-500/20 mb-8">
             <div className="flex items-start justify-between mb-6">

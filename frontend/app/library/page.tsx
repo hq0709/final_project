@@ -75,6 +75,23 @@ export default function LibraryPage() {
   const filteredGames = games.filter(game => {
     if (filter === 'all') return true;
     return game.status === filter;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'rating_high':
+        return (b.avgRating || 0) - (a.avgRating || 0);
+      case 'rating_low':
+        return (a.avgRating || 0) - (b.avgRating || 0);
+      case 'metacritic':
+        return (b.metacriticScore || 0) - (a.metacriticScore || 0);
+      case 'name':
+        return a.title.localeCompare(b.title);
+      case 'platform':
+        return a.platformName.localeCompare(b.platformName);
+      case 'last_played':
+      default:
+        // Assuming higher ID means more recently added as a fallback
+        return b.userGameId - a.userGameId;
+    }
   });
 
   const getStatusBadge = (status: string) => {
@@ -87,20 +104,20 @@ export default function LibraryPage() {
     };
     const badge = badges[status] || { text: status, color: 'bg-gray-600' };
     return (
-      <span className={`${badge.color} text-white text-xs px-2 py-1 rounded`}>
+      <span className={`${badge.color} text-white text-xs px-2 py-1 rounded-lg font-bold shadow-sm`}>
         {badge.text}
       </span>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-grid bg-fixed bg-slate-900">
       <Navbar />
-      
-      <div className="max-w-7xl mx-auto px-4 py-8">
+
+      <div className="max-w-7xl mx-auto px-4 py-8 pt-28">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-6 flex items-center gap-3">
+          <h1 className="text-4xl font-bold text-white mb-6 flex items-center gap-3 neon-text">
             <span className="text-5xl">📚</span>
             My Game Library
           </h1>
@@ -110,31 +127,28 @@ export default function LibraryPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filter === 'all'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-slate-800 text-gray-400 hover:text-white'
-                }`}
+                className={`px-4 py-2 rounded-xl font-bold transition-all ${filter === 'all'
+                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
+                  : 'glass text-gray-400 hover:text-white hover:bg-white/10'
+                  }`}
               >
                 All Games
               </button>
               <button
                 onClick={() => setFilter('owned')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filter === 'owned'
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-800 text-gray-400 hover:text-white'
-                }`}
+                className={`px-4 py-2 rounded-xl font-bold transition-all ${filter === 'owned'
+                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                  : 'glass text-gray-400 hover:text-white hover:bg-white/10'
+                  }`}
               >
                 📚 My Collection
               </button>
               <button
                 onClick={() => setFilter('wishlist')}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filter === 'wishlist'
-                    ? 'bg-yellow-600 text-white'
-                    : 'bg-slate-800 text-gray-400 hover:text-white'
-                }`}
+                className={`px-4 py-2 rounded-xl font-bold transition-all ${filter === 'wishlist'
+                  ? 'bg-yellow-600 text-white shadow-lg shadow-yellow-600/30'
+                  : 'glass text-gray-400 hover:text-white hover:bg-white/10'
+                  }`}
               >
                 ⭐ Wishlist
               </button>
@@ -145,10 +159,14 @@ export default function LibraryPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 rounded-lg bg-slate-800 text-white border border-purple-500/30 focus:border-purple-500 focus:outline-none"
+              className="px-4 py-2 rounded-xl glass text-white border border-white/10 focus:border-purple-500 focus:outline-none cursor-pointer"
             >
               <option value="last_played">Recently Added</option>
-              <option value="name">Name</option>
+              <option value="name">Name (A-Z)</option>
+              <option value="rating_high">Highest Rated</option>
+              <option value="rating_low">Lowest Rated</option>
+              <option value="metacritic">Metacritic Score</option>
+              <option value="platform">Platform</option>
             </select>
           </div>
         </div>
@@ -182,12 +200,12 @@ export default function LibraryPage() {
             {filteredGames.map((game) => (
               <div
                 key={game.userGameId}
-                className="bg-slate-800/50 backdrop-blur rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all shadow-xl relative group"
+                className="glass rounded-2xl overflow-hidden hover:border-purple-500/50 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-900/30 group card-hover-3d"
               >
                 {/* Remove Button */}
                 <button
                   onClick={(e) => handleRemoveGame(game.userGameId, game.title, e)}
-                  className="absolute top-2 left-2 z-10 bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-2 left-2 z-10 bg-red-600/80 hover:bg-red-600 text-white p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm shadow-lg"
                   title="Remove from library"
                 >
                   🗑️

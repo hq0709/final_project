@@ -57,6 +57,7 @@ export interface Review {
   displayName?: string;
   avatarUrl?: string;
   gameTitle?: string;
+  recommended?: boolean;
 }
 
 export interface ReviewReply {
@@ -134,7 +135,7 @@ async function apiRequest<T>(
   };
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    (headers as any)['Authorization'] = `Bearer ${token}`;
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -143,6 +144,12 @@ async function apiRequest<T>(
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      removeAuthToken();
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth')) {
+        window.location.href = '/auth';
+      }
+    }
     const error = await response.json().catch(() => ({
       message: 'An error occurred',
     }));
@@ -329,6 +336,10 @@ export const reviewsAPI = {
   // Get user's reviews
   getUserReviews: async (): Promise<any[]> => {
     return apiRequest<any[]>('/reviews/user');
+  },
+
+  getRecentReviews: async (limit: number = 10): Promise<any[]> => {
+    return apiRequest<any[]>(`/reviews/recent?limit=${limit}`);
   },
 
   // Create a review
