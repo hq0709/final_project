@@ -85,6 +85,10 @@ public class DataSeeder implements CommandLineRunner {
                 updateCover("Terraria", "https://cdn.cloudflare.steamstatic.com/steam/apps/105600/library_600x900.jpg");
                 updateCover("Undertale",
                                 "https://cdn.cloudflare.steamstatic.com/steam/apps/391540/library_600x900.jpg");
+                updateCover("Half-Life: Alyx",
+                                "https://cdn.cloudflare.steamstatic.com/steam/apps/546560/library_600x900.jpg");
+                updateCover("Portal 2", "https://cdn.cloudflare.steamstatic.com/steam/apps/620/library_600x900.jpg");
+                updateCover("Hades", "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/library_600x900.jpg");
 
                 System.out.println("✅ Game cover images seeded!");
         }

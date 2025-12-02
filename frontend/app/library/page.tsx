@@ -214,9 +214,17 @@ export default function LibraryPage() {
 
                 <Link href={`/games/${game.gameId}`} className="block">
                   {/* Game Cover */}
-                  <div className="h-48 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center relative">
-                    <span className="text-6xl">🎮</span>
-                    <div className="absolute top-2 right-2">
+                  <div className="h-48 bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center relative overflow-hidden">
+                    {game.coverImageUrl ? (
+                      <img
+                        src={game.coverImageUrl}
+                        alt={game.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                    ) : (
+                      <span className="text-6xl">🎮</span>
+                    )}
+                    <div className="absolute top-2 right-2 z-10">
                       {getStatusBadge(game.status)}
                     </div>
                   </div>

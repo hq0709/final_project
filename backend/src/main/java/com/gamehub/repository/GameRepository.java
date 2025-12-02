@@ -52,11 +52,17 @@ public class GameRepository {
     /**
      * Get all games with average ratings
      */
-    public List<Game> findAll() {
+    /**
+     * Get all games with average ratings (paginated)
+     */
+    public List<Game> findAll(int page, int size) {
+        int offset = page * size;
         String sql = "SELECT g.*, " +
                 "(SELECT AVG(r.rating) FROM REVIEW r WHERE r.game_id = g.game_id) as avg_rating " +
                 "FROM GAME g " +
-                "ORDER BY g.title";
+                "ORDER BY g.title " +
+                "LIMIT ? OFFSET ?";
+
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Game game = new Game();
             game.setGameId(rs.getInt("game_id"));
@@ -81,7 +87,23 @@ public class GameRepository {
             }
 
             return game;
-        });
+        }, size, offset);
+    }
+
+    /**
+     * Count total games
+     */
+    public long count() {
+        String sql = "SELECT COUNT(*) FROM GAME";
+        Long count = jdbcTemplate.queryForObject(sql, Long.class);
+        return count != null ? count : 0;
+    }
+
+    /**
+     * Get all games (legacy support, redirects to first page with large limit)
+     */
+    public List<Game> findAll() {
+        return findAll(0, 1000);
     }
 
     /**

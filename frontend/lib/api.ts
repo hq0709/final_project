@@ -185,9 +185,18 @@ export const authAPI = {
 };
 
 // Games API
+export interface PaginatedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+  size: number;
+}
+
+// Games API
 export const gamesAPI = {
-  getAll: async (page: number = 0, size: number = 20): Promise<Game[]> => {
-    return apiRequest<Game[]>(`/games?page=${page}&size=${size}`);
+  getAll: async (page: number = 0, size: number = 20): Promise<PaginatedResponse<Game>> => {
+    return apiRequest<PaginatedResponse<Game>>(`/games?page=${page}&size=${size}`);
   },
 
   getById: async (id: number): Promise<Game> => {
@@ -195,6 +204,10 @@ export const gamesAPI = {
   },
 
   search: async (query: string, page: number = 0, size: number = 20): Promise<Game[]> => {
+    // Search endpoint might still return List<Game> unless updated. 
+    // Checking GameController... searchGames returns List<Game>.
+    // So we keep this as Game[] for now, or update backend search too.
+    // The user only asked for pagination on the main list.
     return apiRequest<Game[]>(`/games/search?q=${encodeURIComponent(query)}&page=${page}&size=${size}`);
   },
 

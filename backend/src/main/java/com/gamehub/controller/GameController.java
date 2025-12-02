@@ -16,7 +16,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/games")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001" })
 public class GameController {
 
     @Autowired
@@ -26,10 +26,27 @@ public class GameController {
      * Get all games
      * GET /api/games
      */
+    /**
+     * Get all games (paginated)
+     * GET /api/games?page=0&size=20
+     */
     @GetMapping
-    public ResponseEntity<List<Game>> getAllGames() {
-        List<Game> games = gameRepository.findAll();
-        return ResponseEntity.ok(games);
+    public ResponseEntity<Map<String, Object>> getAllGames(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        List<Game> games = gameRepository.findAll(page, size);
+        long totalElements = gameRepository.count();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", games);
+        response.put("totalElements", totalElements);
+        response.put("totalPages", totalPages);
+        response.put("currentPage", page);
+        response.put("size", size);
+
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -90,4 +107,3 @@ public class GameController {
         return ResponseEntity.ok(platforms);
     }
 }
-

@@ -11,17 +11,27 @@ export default function GamesPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     loadGames();
-  }, [page]);
+  }, [page, pageSize]);
 
   const loadGames = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await gamesAPI.getAll(page, 20);
-      setGames(data);
+      if (searchQuery.trim()) {
+        // Search endpoint currently returns array (based on api.ts check)
+        const data = await gamesAPI.search(searchQuery, page, pageSize);
+        setGames(data);
+        setTotalPages(1);
+      } else {
+        const data = await gamesAPI.getAll(page, pageSize);
+        setGames(data.content);
+        setTotalPages(data.totalPages);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load games');
     } finally {
@@ -31,21 +41,8 @@ export default function GamesPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) {
-      loadGames();
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await gamesAPI.search(searchQuery, 0, 20);
-      setGames(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to search games');
-    } finally {
-      setLoading(false);
-    }
+    setPage(0);
+    loadGames();
   };
 
   return (
@@ -59,9 +56,9 @@ export default function GamesPage() {
           <p className="text-gray-400 text-xl">Discover and explore amazing games</p>
         </div>
 
-        {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mb-12 max-w-3xl mx-auto">
-          <div className="flex gap-4 p-2 glass rounded-2xl">
+        {/* Search Bar & Page Size */}
+        <form onSubmit={handleSearch} className="mb-12 max-w-4xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-4 p-2 glass rounded-2xl">
             <input
               type="text"
               value={searchQuery}
@@ -69,6 +66,18 @@ export default function GamesPage() {
               placeholder="Search games..."
               className="flex-1 px-6 py-4 rounded-xl bg-slate-800/50 text-white border border-white/5 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder-gray-500"
             />
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setPage(0);
+              }}
+              className="px-4 py-4 rounded-xl bg-slate-800/50 text-white border border-white/5 focus:outline-none focus:border-purple-500 cursor-pointer"
+            >
+              <option value="10">10 per page</option>
+              <option value="15">15 per page</option>
+              <option value="20">20 per page</option>
+            </select>
             <button
               type="submit"
               className="px-8 py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50"
@@ -80,7 +89,17 @@ export default function GamesPage() {
                 type="button"
                 onClick={() => {
                   setSearchQuery('');
-                  loadGames();
+                  setPage(0);
+                  // We need to trigger a reload with empty query. 
+                  // Since loadGames uses state, we can't just call it here with old state.
+                  // But setting searchQuery to '' will trigger re-render, but NOT loadGames because it's not in dependency array.
+                  // We can manually call getAll here.
+                  setLoading(true);
+                  gamesAPI.getAll(0, pageSize).then(data => {
+                    setGames(data.content);
+                    setTotalPages(data.totalPages);
+                    setLoading(false);
+                  });
                 }}
                 className="px-6 py-4 glass hover:bg-white/10 text-white rounded-xl font-bold transition-all"
               >
@@ -155,8 +174,8 @@ export default function GamesPage() {
             </div>
 
             {/* Pagination */}
-            {games.length > 0 && (
-              <div className="mt-16 flex justify-center gap-4">
+            {games.length > 0 && !searchQuery && (
+              <div className="mt-16 flex justify-center gap-4 items-center">
                 <button
                   onClick={() => setPage(Math.max(0, page - 1))}
                   disabled={page === 0}
@@ -165,11 +184,11 @@ export default function GamesPage() {
                   Previous
                 </button>
                 <span className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold shadow-lg shadow-purple-600/20">
-                  Page {page + 1}
+                  Page {page + 1} of {totalPages}
                 </span>
                 <button
-                  onClick={() => setPage(page + 1)}
-                  disabled={games.length < 20}
+                  onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                  disabled={page >= totalPages - 1}
                   className="px-6 py-3 glass hover:bg-white/10 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold"
                 >
                   Next
@@ -187,7 +206,13 @@ export default function GamesPage() {
                   <button
                     onClick={() => {
                       setSearchQuery('');
-                      loadGames();
+                      setPage(0);
+                      setLoading(true);
+                      gamesAPI.getAll(0, pageSize).then(data => {
+                        setGames(data.content);
+                        setTotalPages(data.totalPages);
+                        setLoading(false);
+                      });
                     }}
                     className="mt-6 px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-purple-600/30"
                   >
