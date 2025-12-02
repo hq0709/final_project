@@ -55,7 +55,8 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-grid bg-fixed bg-slate-900 pt-28 pb-12 relative">
+    <div className="min-h-screen pt-28 pb-12 relative">
+      <div className="fixed inset-0 bg-grid pointer-events-none -z-10" />
       <div className="bg-noise"></div>
       {/* Hero Section */}
       <div className="relative overflow-hidden mb-20 min-h-[80vh] flex items-center justify-center">

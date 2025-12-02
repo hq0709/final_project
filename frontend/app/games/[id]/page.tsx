@@ -227,7 +227,8 @@ export default function GameDetailPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-grid bg-fixed bg-slate-900">
+      <div className="min-h-screen">
+        <div className="fixed inset-0 bg-grid pointer-events-none -z-10" />
         <div className="max-w-7xl mx-auto px-4 py-8 pt-28">
           {/* Back Button */}
           <Link
@@ -366,8 +367,8 @@ export default function GameDetailPage() {
                     <label
                       key={platform.platform_id}
                       className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all border ${selectedPlatform === platform.platform_id
-                          ? 'bg-purple-600/20 border-purple-500 text-white'
-                          : 'bg-slate-800/50 border-white/5 text-gray-400 hover:bg-slate-700 hover:border-white/10'
+                        ? 'bg-purple-600/20 border-purple-500 text-white'
+                        : 'bg-slate-800/50 border-white/5 text-gray-400 hover:bg-slate-700 hover:border-white/10'
                         }`}
                     >
                       <input

@@ -111,7 +111,8 @@ export default function LibraryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-grid bg-fixed bg-slate-900">
+    <div className="min-h-screen">
+      <div className="fixed inset-0 bg-grid pointer-events-none -z-10" />
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8 pt-28">
