@@ -2,8 +2,6 @@
 
 > **The ultimate social platform for gamers to discover, track, and review their favorite titles.**
 
-![GameHub Banner](https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop)
-
 ## 📖 About The Project
 
 **GameHub** is a modern, full-stack web application designed for the gaming community. It bridges the gap between game discovery and social interaction, allowing users to build their personal library, write detailed reviews, and engage with other gamers through a dynamic feed.
