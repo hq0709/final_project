@@ -10,15 +10,15 @@ Team Members
    - Built Python AI Service (RAG Chatbot, Recommendations, Sentiment Analysis).
    - Integrated AI with Frontend & Optimized SQL Queries.
 
-2. [Member Name A] (Backend Developer)
+2. Yage Hu (Backend Developer)
    - Built Spring Boot Application Structure.
    - Implemented JWT Auth & Core REST APIs (Games, Reviews).
 
-3. [Member Name B] (Frontend Developer)
+3. Triparna Ganguly (Frontend Developer)
    - Developed Next.js UI with Tailwind CSS.
    - Created "My Library" & "Community Feed" Pages.
 
-4. [Member Name C] (Data & QA)
+4. Boyang Yi (Data & QA)
    - Managed Data Seeding & Database Initialization.
    - Wrote Test Cases & Perfumed API Testing.
 
