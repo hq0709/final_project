@@ -9,13 +9,15 @@ We implemented several indexes to optimize the most frequent queries in our appl
    - Table: GAME
    - Column: title
    - Type: BTREE
-   - DDL: INDEX idx_title (title)
+   - DDL (Inline): INDEX idx_title (title)
+   - SQL Command: CREATE INDEX idx_title ON GAME(title);
 
 2. Game Reviews Index (idx_game_reviews)
    - Table: REVIEW
    - Columns: (game_id, created_date DESC)
    - Type: COMPOSITE BTREE
-   - DDL: INDEX idx_game_reviews (game_id, created_date DESC)
+   - DDL (Inline): INDEX idx_game_reviews (game_id, created_date DESC)
+   - SQL Command: CREATE INDEX idx_game_reviews ON REVIEW(game_id, created_date DESC);
 
 Performance Measurements
 ------------------------
