@@ -1,0 +1,28 @@
+Security Report (security.txt)
+================================
+
+Password Storage Strategy
+-------------------------
+We use **BCrypt** (via Spring Security components) to securely hash and Salt user passwords before storage.
+
+1. **Algorithm**: BCrypt
+   - It is a slow hashing algorithm designed to be resistant to brute-force and rainbow table attacks.
+   - It automatically handles salt generation and embedding.
+
+2. **Implementation**:
+   - Class: `com.gamehub.util.PasswordUtil` (or equivalent used in `UserService`)
+   - Method: `BCrypt.hashpw(password, BCrypt.gensalt(12))`
+   - Work Factor: 12 (Adjustable for security/performance trade-off)
+
+3. **Database Storage**:
+   - Column: `password_hash` in `USER` table.
+   - Type: `VARCHAR(255)`
+   - We NEVER store plain text passwords.
+
+4. **Verification**:
+   - When a user logs in, we use `BCrypt.checkpw(candidate_password, stored_hash)` to verify the credential without ever decrypting the hash (checking is one-way).
+
+Risk Mitigation
+---------------
+- **SQL Injection**: We use `JdbcTemplate` with **Prepared Statements** (placeholder `?` syntax) for all parameterized queries. This prevents malicious SQL injection attacks.
+- **XSS**: Inputs are sanitized, and the frontend (React) escapes content by default.

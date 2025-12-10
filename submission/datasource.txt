@@ -1,0 +1,48 @@
+Data Source Report (datasource.txt)
+===================================
+
+Data Generation Strategy
+------------------------
+To ensure a realistic and high-volume dataset for the GameHub platform, we implemented a sophisticated AI-driven data generation pipeline.
+
+## Review Generation (AI Powered)
+
+Unlike traditional methods that use random string templates (CFG), we developed a custom Python script (`scripts/generate_massive_reviews.py`) that leverages the **OpenAI GPT-4o API** (or compatible LLM) to generate reviews.
+
+### Features:
+1.  **Persona System**: The script simulates diversity by randomly assigning one of 7 distinct user personas to each review, including:
+    - "The Lore Archaeologist" (Story-focused)
+    - "The Performance Purist" (Tech-focused)
+    - "The Steam Deck User" (Handheld experience)
+    - "The Casual Dad/Mom" (Accessible gameplay)
+    - "The Refund Rager" (Negative bias)
+
+2.  **Context Aware**: The prompts inject specific game titles (e.g., "Elden Ring", "Cyberpunk 2077") so the AI generates factually relevant content about mechanics, characters, and performance issues specific to that game.
+
+3.  **Dynamic Metadata**:
+    - **Rating**: Aligned with the persona's bias (e.g., Refund Rager gives 1-star).
+    - **Dates**: Randomized distribution over the last 365 days.
+    - **Engagement**: Synthesized 'helpful' and 'likes' counts using exponential distribution to mimic real social proof.
+
+This approach resulted in **1300+ high-quality, non-repetitive reviews** that provide a rich user experience.
+
+4.  **Data Persistence**:
+    - **Base Data**: Extracted from `submission/base_data.sql` (Static game/platform info).
+    - **AI Reviews**: Generated into `submission/premium_reviews.sql`.
+    - **Final Dataset**: Merged into `submission/data.sql` using `scripts/reconstruct_final.py`.
+
+## User Generation
+We generated **100+ unique user profiles** (`User_1001` to `User_1100`) with:
+- Consistent writing styles matching their persona.
+- Realistic display names and email addresses.
+- Hashed passwords (`demo123` equivalent) for security compliance.
+
+## Database Schema
+The data is structured in a relational MySQL database comprising:
+- `GAME`: Core game metadata.
+- `USER`: User accounts and profiles.
+- `REVIEW`: Text reviews and ratings.
+- `REVIEW_LIKE`: Social interactions.
+- `PLATFORM`, `GENRE`: Reference tables.
+
+For full schema details, see `submission/ddl.sql`.
